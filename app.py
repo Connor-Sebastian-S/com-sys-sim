@@ -27,6 +27,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 MODULES = [
+    ("Home",                       "modules.home"),
 #    ("Live CPU Simulator",       "modules.simulator"),
     ("Number Systems",           "modules.numbers"),
 #    ("Fetch-Decode-Execute",      "modules.fde"),
@@ -60,6 +61,6 @@ with st.sidebar:
     }
     st.info(lvl_info[level])
 
-module_path = MODULE_MAP.get(selected, "modules.simulator")
+module_path = MODULE_MAP.get(selected, "modules.home")
 page = importlib.import_module(module_path)
 page.render()
