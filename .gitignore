@@ -1,10 +1,8 @@
 modules/architecture.py
-modules/buses.py
 modules/bytecode.py
 modules/cache.py
 modules/cpu.py
 modules/dma.py
-modules/fde.py
 modules/interrupts.py
 modules/memory.py
 modules/overview.py
