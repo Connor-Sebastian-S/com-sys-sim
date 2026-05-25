@@ -1,52 +1,42 @@
-An attempt to create a simulation (of sorts) of a computer system :)
+# 🖥️ Computer System Fundamentals — Interactive Simulator
 
-As of now we have main.py, this is the entry point to our StreamLt app. 
+An interactive Streamlit app for learning computer architecture from the ground up, with a difficulty slider (Beginner → Advanced).
 
-alu.py is the ALU - Arithmatic Logic Unit. Here, we have:
-3 tabs: 
-1 - ALU Operations
+## Modules
 
-Enter two numbers: Operand A and Operand B
-Pick an operation: ADD, SUB, MUL, AND, OR, XOR, NOT, SHL, SHR
-Call r = alu_op(int(a), int(b), op) in our helper.py
-Which return: decimal result, 32-bit result, hex + binary versions, CPU flags: Zero flag (Z), Negative flag (N), Carry (C), Overflow (V)
+| Module | Topics covered |
+|---|---|
+| Number Systems | Binary, hex, octal, ASCII, two's complement, IEEE-754, colour codes, quiz |
 
-2 - Logic Gates
-Pick a gate: AND, OR, NOT, NAND, NOR, XOR, XNOR
-Each gate is defined as a Python function:
-"AND": lambda a,b: a & b
-"OR":  lambda a,b: a | b
-"XOR": lambda a,b: a ^ b
+## Running locally
 
-Some are built from others:
-NAND = NOT(AND)
-NOR = NOT(OR)
-XNOR = NOT(XOR)
+```bash
+pip install -r requirements.txt
+streamlit run app.py
+```
 
-Outputs:
-Truth table (all input combinations)
-Interactive toggle (A and B switches)
-Big glowing result: 1 (HIGH) or 0 (LOW)
 
-3 - 8-bit Ripple-Carry Adder
-Input two numbers (0–255)
-Convert to 8-bit binary:
-a_bits = [int(b) for b in to_bin(a_val, 8)]
+## Project structure
 
-Full adder simulation (core CPU trick)
-Each bit uses:
-s  = ai ^ bi ^ ci
-co = (ai & bi) | (bi & ci) | (ai & ci)
+```
+cpu_sim/
+├── app.py                  # Main entry point & sidebar navigation
+├── requirements.txt
+├── core/
+│   ├── cpu.py              # CPU simulation engine (registers, ALU, cache, buses, DMA, IRQ)
+│   └── reference.py        # Number system utils, memory/cache/bus reference data
+└── pages/
+    ├── numbers.py          # Number systems
+```
 
-That is a full adder circuit:
-XOR → sum
-AND/OR → carry logic
+## Proosed architecture of the simulation engine
 
-The carry from each bit flows into the next:
-bit0 → bit1 → bit2 → ... → bit7
-
-Outputs:
-step-by-step table of each bit stage
-final sum
-overflow detection (>255)
-binary result visualisation
+- **Registers**: A, B, C, D (8-bit GP), PC, SP (16-bit), MAR, MDR, IR, CIR (internal), ALU_A/B/OUT
+- **Flags**: Zero, Carry, Negative, Overflow, Interrupt-enable
+- **Memory**: 256-byte flat address space with typed regions (ROM, Flash, Stack, Heap, Code, Data, I/O, DMA, Video)
+- **Cache**: 2-level (L1 + L2), 4-way set-associative, LRU eviction, hit/miss/eviction tracking
+- **Buses**: Address, Data, Control — full transaction log with state, address, data, control signals
+- **Interrupts**: NMI, IRQ0–IRQ3, Software, DMA_DONE — prioritised queue, IVT lookup, context save/restore
+- **DMA**: Source/destination/length programming, HOLD/HLDA handshake, scatter-gather, DMA_DONE IRQ
+- **Instruction set**: 19 instructions (LOAD, STORE, ADD, SUB, AND, OR, XOR, CMP, JMP, JZ, JNZ, PUSH, POP, CALL, RET, IN, OUT, NOP, HLT)
+- **Step log**: Every micro-operation logged with phase, cycle count, register snapshot, bus snapshot, memory writes, cache event, flags

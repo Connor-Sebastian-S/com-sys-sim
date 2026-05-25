@@ -1,172 +1,153 @@
-# utils/helpers.py
+"""Shared helpers for the CPU simulator."""
+import struct, sys, ctypes, dis, io
+from typing import Any
 
-import struct
-import math
+# ── binary / encoding helpers ────────────────────────────────────────────────
 
-def to_bin(value: int, bits: int = 32) -> str:
-    """
-    Return binary representation with fixed width.
-    """
-    mask = (1 << bits) - 1
-    value &= mask
-    return format(value, f"0{bits}b")
+def to_bin(n: int, bits: int = 8) -> str:
+    """Return zero-padded binary string."""
+    return format(n & ((1 << bits) - 1), f"0{bits}b")
 
+def to_hex(n: int, nibbles: int = 2) -> str:
+    return format(n & ((1 << nibbles * 4) - 1), f"0{nibbles}X")
 
-def to_hex(value: int, bits: int = 32) -> str:
-    """
-    Return fixed-width hexadecimal representation.
-    """
-    hex_digits = bits // 4
-    mask = (1 << bits) - 1
-    value &= mask
-    return format(value, f"0{hex_digits}X")
-
-def real_id(value: int, bits: int = 32) -> int:
-    """
-    Force integer into fixed-width signed range.
-    """
-    mask = (1 << bits) - 1
-    value &= mask
-
-    # sign extension
-    if value & (1 << (bits - 1)):
-        value -= (1 << bits)
-
-    return value
-
-
-def sizeof(value) -> int:
-    if isinstance(value, int):
-        return 4
-    elif isinstance(value, float):
-        return 8
-    elif isinstance(value, str):
-        return len(value.encode("utf-8"))
-    else:
-        return len(str(value))
-
-
-def int_to_bytes_repr(value: int, bits: int = 32) -> dict:
-    mask = (1 << bits) - 1
-    unsigned = value & mask
-
-    signed = unsigned
-    if unsigned & (1 << (bits - 1)):
-        signed -= (1 << bits)
-
-    byte_len = bits // 8
-    byte_data = unsigned.to_bytes(byte_len, byteorder="little", signed=False)
-
+def int_to_bytes_repr(n: int) -> dict:
+    """Full breakdown of an integer."""
+    signed = ctypes.c_int32(n).value
+    unsigned = n & 0xFFFFFFFF
     return {
-        "decimal_signed": signed,
+        "decimal_signed":   signed,
         "decimal_unsigned": unsigned,
-        "bytes": byte_data,
+        "hex":              f"0x{to_hex(unsigned, 8)}",
+        "binary":           to_bin(unsigned, 32),
+        "bytes_le":         list(struct.pack("<I", unsigned)),
+        "bytes_be":         list(struct.pack(">I", unsigned)),
+        "size_bytes":       4,
     }
 
-
-def str_to_bytes_repr(value: str, encoding: str = "utf-8") -> dict:
-    encoded = value.encode(encoding)
-
+def float_to_ieee754(f: float) -> dict:
+    """Decompose a float into IEEE-754 fields."""
+    bits = struct.unpack(">I", struct.pack(">f", f))[0]
+    sign     = (bits >> 31) & 1
+    exponent = (bits >> 23) & 0xFF
+    mantissa =  bits        & 0x7FFFFF
     return {
-        "length_chars": len(value),
-        "length_bytes": len(encoded),
-        "bytes": encoded,
-        "hex": encoded.hex().upper(),
-        "codepoints": [ord(c) for c in value],
+        "raw_bits":   to_bin(bits, 32),
+        "sign":       sign,
+        "exponent_biased": exponent,
+        "exponent_actual": exponent - 127,
+        "mantissa_bits":   to_bin(mantissa, 23),
+        "mantissa_value":  1 + mantissa / (2**23),
+        "hex":        f"0x{to_hex(bits, 8)}",
     }
 
-
-import struct
-
-def float_to_ieee754(value: float) -> dict:
-    # pack float into 32-bit binary
-    packed = struct.pack("!f", value)
-    as_int = int.from_bytes(packed, byteorder="big")
-    bits = format(as_int, "032b")
-
-    sign = int(bits[0])
-    exponent_bits = bits[1:9]
-    mantissa_bits = bits[9:]
-
-    exponent_biased = int(exponent_bits, 2)
-    exponent_actual = exponent_biased - 127
-
-    mantissa_value = 1.0
-    for i, bit in enumerate(mantissa_bits):
-        if bit == "1":
-            mantissa_value += 2 ** (-(i + 1))
-
+def str_to_bytes_repr(s: str, encoding: str = "utf-8") -> dict:
+    raw = s.encode(encoding)
     return {
-        "raw_bits": bits,
-        "sign": sign,
-        "exponent_biased": exponent_biased,
-        "exponent_actual": exponent_actual,
-        "mantissa_value": mantissa_value,
-        "hex": f"0x{as_int:08X}",
+        "encoding":  encoding,
+        "bytes":     list(raw),
+        "hex":       raw.hex(" ").upper(),
+        "length_chars": len(s),
+        "length_bytes": len(raw),
+        "codepoints":  [ord(c) for c in s],
     }
 
+# ── memory helpers ───────────────────────────────────────────────────────────
 
-def debug_registers(a32, b32, to_bin):
-    """
-    Likely used in UI like:
-      f"A: {to_bin(a32,32)}"
-    """
-    return (
-        f"  A: {to_bin(a32,32)}\n"
-        f"  B: {to_bin(b32,32)}\n"
-    )
+def real_id(obj: Any) -> str:
+    """Return CPython object address as hex."""
+    return f"0x{id(obj):016X}"
 
-def alu_op(a: int, b: int, op: str, bits: int = 32) -> dict:
-    mask = (1 << bits) - 1
+def sizeof(obj: Any) -> int:
+    return sys.getsizeof(obj)
 
-    a &= mask
-    b &= mask
-    op = op.upper()
+# ── disassembly helper ───────────────────────────────────────────────────────
 
-    overflow = False
+def disassemble(source: str) -> str:
+    """Compile source and return dis.dis() output."""
+    try:
+        code = compile(source, "<input>", "exec")
+        buf  = io.StringIO()
+        dis.dis(code, file=buf)
+        return buf.getvalue()
+    except SyntaxError as e:
+        return f"SyntaxError: {e}"
 
-    if op == "ADD":
-        result = a + b
-        overflow = result > mask
-        result &= mask
+def get_bytecode_instructions(source: str) -> list[dict]:
+    """Return list of instruction dicts for table display."""
+    try:
+        code = compile(source, "<input>", "exec")
+        rows = []
+        for instr in dis.get_instructions(code):
+            rows.append({
+                "Offset": instr.offset,
+                "Opcode": instr.opname,
+                "Arg":    instr.arg if instr.arg is not None else "—",
+                "Arg repr": instr.argrepr or "—",
+                "Stack effect": dis.stack_effect(instr.opcode, instr.arg) if instr.arg is not None else "—",
+            })
+        return rows
+    except SyntaxError as e:
+        return [{"Offset": "—", "Opcode": f"SyntaxError: {e}", "Arg": "—", "Arg repr": "—", "Stack effect": "—"}]
 
-    elif op == "SUB":
-        result = (a - b) & mask
-        overflow = True  # simplified model (or compute properly later)
+# ── ALU helpers ──────────────────────────────────────────────────────────────
 
-    elif op == "MUL":
-        result = (a * b) & mask
-
-    elif op == "AND":
-        result = a & b
-
-    elif op == "OR":
-        result = a | b
-
-    elif op == "XOR":
-        result = a ^ b
-
-    elif op == "NOT":
-        result = (~a) & mask
-
-    elif op == "SHL":
-        result = (a << b) & mask
-
-    elif op == "SHR":
-        result = a >> b
-
-    else:
-        raise ValueError(f"Unsupported op: {op}")
-
-    # signed interpretation
-    signed = result if result < (1 << (bits - 1)) else result - (1 << bits)
-
+def alu_op(a: int, b: int, op: str) -> dict:
+    ops = {
+        "ADD":  lambda x,y: x + y,
+        "SUB":  lambda x,y: x - y,
+        "MUL":  lambda x,y: x * y,
+        "AND":  lambda x,y: x & y,
+        "OR":   lambda x,y: x | y,
+        "XOR":  lambda x,y: x ^ y,
+        "SHL":  lambda x,y: x << (y % 32),
+        "SHR":  lambda x,y: x >> (y % 32),
+        "NOT":  lambda x,y: ~x & 0xFFFFFFFF,
+    }
+    result = ops[op](a, b) if op in ops else 0
+    result32 = result & 0xFFFFFFFF
     return {
-        "result": signed,
-        "result32": result,
-        "result_bin": format(result, f"0{bits}b"),
-        "result_hex": format(result, f"0{bits//4}X"),
-        "zero_flag": result == 0,
-        "negative_flag": (result & (1 << (bits - 1))) != 0,
-        "overflow": overflow,
+        "op": op,
+        "a": a, "b": b,
+        "result": result,
+        "result32": result32,
+        "result_bin": to_bin(result32, 32),
+        "result_hex": f"0x{to_hex(result32, 8)}",
+        "zero_flag":  result32 == 0,
+        "negative_flag": bool(result32 >> 31),
+        "overflow":   result != result32,
     }
+
+# ── pipeline helpers ─────────────────────────────────────────────────────────
+
+PIPELINE_STAGES = ["IF", "ID", "EX", "MEM", "WB"]
+STAGE_LABELS = {
+    "IF":  "Instruction Fetch",
+    "ID":  "Instruction Decode",
+    "EX":  "Execute (ALU)",
+    "MEM": "Memory Access",
+    "WB":  "Write Back",
+}
+STAGE_COLORS = {
+    "IF":  "#4B8DE8",
+    "ID":  "#9B6DD4",
+    "EX":  "#E87B4B",
+    "MEM": "#4BB8A8",
+    "WB":  "#68C46A",
+}
+
+def simulate_pipeline(instructions: list[str]) -> list[dict]:
+    """Return a cycle-by-cycle pipeline table."""
+    n = len(instructions)
+    total_cycles = n + len(PIPELINE_STAGES) - 1
+    table = []
+    for i, instr in enumerate(instructions):
+        row = {"Instruction": instr}
+        for c in range(total_cycles):
+            stage_idx = c - i
+            if 0 <= stage_idx < len(PIPELINE_STAGES):
+                row[f"C{c+1}"] = PIPELINE_STAGES[stage_idx]
+            else:
+                row[f"C{c+1}"] = ""
+        table.append(row)
+    return table

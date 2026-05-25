@@ -1,3 +1,0 @@
-import alu
-
-alu.show()
