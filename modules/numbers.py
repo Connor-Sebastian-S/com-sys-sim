@@ -43,7 +43,8 @@ def render():
 
     if valid:
         st.divider()
-        c1,c2,c3,c4 = st.columns(4)
+        c1,c2 = st.columns(2)
+        c3,c4 = st.columns(2)
         c1.metric("Decimal",     str(n))
         c2.metric("Hexadecimal", f"0x{n:02X}")
         c3.metric("Binary",      bit_groups(to_binary(n)))
