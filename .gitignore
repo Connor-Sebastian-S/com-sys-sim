@@ -1,5 +1,4 @@
 modules/architecture.py
-modules/assembly.py
 modules/buses.py
 modules/bytecode.py
 modules/cache.py

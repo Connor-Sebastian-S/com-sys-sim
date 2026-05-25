@@ -4,7 +4,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 import streamlit as st
 
 st.set_page_config(
-    page_title="Computer System Fundamentals",
+    page_title="Computer Systems Fundamentals",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -28,17 +28,17 @@ st.markdown("""
 
 MODULES = [
     ("Home", "modules.home"),
-#    ("Live CPU Simulator",       "modules.simulator"),
-    ("ALU", "modules.alu"),   
-#    ("Fetch-Decode-Execute",      "modules.fde"),
-#    ("Memory & Storage Types",   "modules.memory_types"),
-#    ("Cache Hierarchy",           "modules.cache"),
-#    ("Stack & Heap",             "modules.stack_heap"),
-#    ("Interrupts & I/O",         "modules.interrupts"),
+#    ("Live CPU Simulator", "modules.simulator"),
+    ("ALU", "modules.alu"),                         # Numbers, ALU, logic gates, etc.
+#    ("Fetch-Decode-Execute", "modules.fde"),
+#    ("Memory & Storage Types", "modules.memory_types"),
+#    ("Cache Hierarchy", "modules.cache"),
+#    ("Stack & Heap", "modules.stack_heap"),
+#    ("Interrupts & I/O", "modules.interrupts"),
 #    ("Buses (Data/Address/Control)", "modules.buses"),
-#    ("Assembly Walkthrough",     "modules.assembly"),
-#    ("Von Neumann vs Harvard",   "modules.architecture"),
-#    ("DMA & Direct Access",      "modules.dma"),
+    ("Assembly Walkthrough", "modules.assembly"),   # Assembly, opcodes, machine code
+#    ("Von Neumann vs Harvard", "modules.architecture"),
+#    ("DMA & Direct Access", "modules.dma"),
 
 ]
 
@@ -46,7 +46,7 @@ MODULE_LABELS = [label for label, _ in MODULES]
 MODULE_MAP    = {label: mod for label, mod in MODULES}
 
 with st.sidebar:
-    st.title("CPU Fundamentals")
+    st.title("Computer Systems Fundamentals")
     st.caption("Interactive Computer Architecture Simulator")
     st.divider()
     selected = st.radio("Module", MODULE_LABELS, label_visibility="collapsed")

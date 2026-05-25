@@ -1,4 +1,4 @@
-"""Home page for Computer Architecture Fundamentals."""
+"""Home page for Computer Systems Fundamentals."""
 
 import streamlit as st
 
@@ -6,14 +6,13 @@ import streamlit as st
 def render():
     level = st.session_state.get("level", "Intermediate")
 
-    st.title("Computer Architecture Fundamentals")
+    st.title("Computer Systems Fundamentals")
 
     st.markdown("""
     Learn how things work, I guess
     """)
 
-    if level == "Beginner":
-        st.info(
+    st.info(
             "Think of a computer as a giant machine that follows instructions. "
             "This course starts with the basic building blocks and gradually "
             "works up to modern CPU design."
