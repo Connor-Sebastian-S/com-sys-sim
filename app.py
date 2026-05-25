@@ -27,10 +27,9 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 MODULES = [
-    ("Home",                       "modules.home"),
+    ("Home", "modules.home"),
 #    ("Live CPU Simulator",       "modules.simulator"),
-    ("ALU",           "modules.alu"),
-    
+    ("ALU", "modules.alu"),   
 #    ("Fetch-Decode-Execute",      "modules.fde"),
 #    ("Memory & Storage Types",   "modules.memory_types"),
 #    ("Cache Hierarchy",           "modules.cache"),

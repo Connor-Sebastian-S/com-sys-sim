@@ -1,4 +1,3 @@
-modules/alu.py
 modules/architecture.py
 modules/assembly.py
 modules/buses.py
@@ -14,7 +13,7 @@ modules/memory.py
 modules/overview.py
 modules/simulator.py
 modules/stack_heap.py
-
+modules/numbers.py
 core/cpu.py
 
 fly.toml
