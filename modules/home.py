@@ -6,7 +6,6 @@ import streamlit as st
 def render():
     level = st.session_state.get("level", "Intermediate")
 
-    # ── Hero ────────────────────────────────────────────────────────────────
     st.title("Computer Architecture Fundamentals")
 
     st.markdown("""
