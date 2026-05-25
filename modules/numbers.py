@@ -9,7 +9,7 @@ from core.reference import (to_binary, to_hex, to_octal, bit_groups,
 
 
 def render():
-    st.title("🔢 Number Systems")
+    st.title("Number Systems")
     level = st.session_state.get("level", "Intermediate")
 
     if level == "Beginner":
@@ -175,9 +175,9 @@ def render():
     with qc1:
         if st.button("Check"):
             if ans.strip().upper() == answer.upper():
-                st.success(f"✅ Correct! {answer}")
+                st.success(f"Correct! {answer}")
             else:
-                st.error(f"❌ Not quite. Answer: {answer}")
+                st.error(f"Fucking idiot. Answer: {answer}")
     with qc2:
         if st.button("New question"):
             st.session_state["quiz_n"] = random.randint(0, 255)
