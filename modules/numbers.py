@@ -72,9 +72,10 @@ def render():
 
             st.markdown("### Nibbles")
             hi, lo = nibble_high(n), nibble_low(n)
-            nc1,nc2 = st.columns(2)
-            nc1.metric("High nibble (bits 7–4)", f"0x{hi:X} = {to_binary(hi,4)}")
-            nc2.metric("Low nibble  (bits 3–0)", f"0x{lo:X} = {to_binary(lo,4)}")
+            #nc1 = st.container()
+           # nc2 = st.container()
+            st.caption(f"High nibble (bits 7–4): 0x{hi:X} = {to_binary(hi, 4)}")
+            st.caption(f"Low nibble  (bits 3–0): 0x{lo:X} = {to_binary(lo,4)}")
 
         with col_b:
             st.markdown("### Interpretations")
