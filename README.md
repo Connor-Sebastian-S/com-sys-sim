@@ -1,6 +1,6 @@
-# 🖥️ Computer System Fundamentals — Interactive Simulator
+# Computer System Fundamentals — Interactive Simulator
 
-An interactive Streamlit app for learning computer architecture from the ground up, with a difficulty slider (Beginner → Advanced).
+An interactive app for learning computer architecture from the ground up, with a difficulty slider (Beginner → Advanced).
 
 ## Modules
 
