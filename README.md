@@ -32,7 +32,7 @@ cpu_sim/
     ├── numbers.py          # Number systems
 ```
 
-## Proosed architecture of the simulation engine
+## Proposed architecture of the simulation engine
 
 - **Registers**: A, B, C, D (8-bit GP), PC, SP (16-bit), MAR, MDR, IR, CIR (internal), ALU_A/B/OUT
 - **Flags**: Zero, Carry, Negative, Overflow, Interrupt-enable
