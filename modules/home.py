@@ -6,7 +6,7 @@ def render():
     st.title("Computer Systems Fundamentals")
     
     st.markdown("""
-    Demystifying the machine. From raw logic gates up to complete operating systems.
+    From raw logic gates up to complete operating systems.
     """)
 
 
@@ -70,7 +70,7 @@ def render():
     # ── ADVANCED TRACK (Beyond the Spec) ────────────────────────────────────
     else:
         st.success(
-            "**Under the Hood:** Taking the training wheels off. This track explores low-level programming, "
+            "**Under the Hood:** This path explores low-level programming, "
             "complex data representations, and modern processor design."
         )
 
