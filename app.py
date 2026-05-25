@@ -31,17 +31,17 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 MODULES = [
-    ("Live CPU Simulator",       "modules.simulator"),
+#    ("Live CPU Simulator",       "modules.simulator"),
     ("Number Systems",           "modules.numbers"),
-    ("Fetch-Decode-Execute",      "modules.fde"),
-    ("Memory & Storage Types",   "modules.memory_types"),
-    ("Cache Hierarchy",           "modules.cache"),
-    ("Stack & Heap",             "modules.stack_heap"),
-    ("Interrupts & I/O",         "modules.interrupts"),
-    ("Buses (Data/Address/Control)", "modules.buses"),
-    ("Assembly Walkthrough",     "modules.assembly"),
-    ("Von Neumann vs Harvard",   "modules.architecture"),
-    ("DMA & Direct Access",      "modules.dma"),
+#    ("Fetch-Decode-Execute",      "modules.fde"),
+#    ("Memory & Storage Types",   "modules.memory_types"),
+#    ("Cache Hierarchy",           "modules.cache"),
+#    ("Stack & Heap",             "modules.stack_heap"),
+#    ("Interrupts & I/O",         "modules.interrupts"),
+#    ("Buses (Data/Address/Control)", "modules.buses"),
+#    ("Assembly Walkthrough",     "modules.assembly"),
+#    ("Von Neumann vs Harvard",   "modules.architecture"),
+#    ("DMA & Direct Access",      "modules.dma"),
 ]
 
 MODULE_LABELS = [label for label, _ in MODULES]
