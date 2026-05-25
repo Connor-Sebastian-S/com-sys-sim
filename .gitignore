@@ -1,12 +1,7 @@
 modules/architecture.py
 modules/bytecode.py
 modules/cpu.py
-modules/dma.py
-modules/memory.py
-modules/overview.py
 modules/simulator.py
-modules/stack_heap.py
-modules/numbers.py
 core/cpu.py
 
 fly.toml
