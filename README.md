@@ -31,7 +31,7 @@ cpu_sim/
 | Unit topic | Coverage |
 |---|---|
 |CPU architecture (ALU, registers, control unit, fetch‑execute cycle) |	fde.py – detailed 5‑stage FDE + interactive animation |
-|Buses (address, data, control)	buses.py – bus transactions, width/bandwidth, arbitration
+|Buses (address, data, control) | buses.py – bus transactions, width/bandwidth, arbitration
 |Memory hierarchy & types (SRAM, DRAM, ROM, EPROM, EEPROM, Flash, virtual) |	memory_types.py – hierarchy visual, deep‑dive cards, memory map |
 |Storage (HDD, SSD, NVMe, tape) | memory_types.py – hierarchy includes HDD/SSD/NVMe, speed comparison |
 |Number systems (binary, decimal, hex) & conversions | alu.py – universal converter, bit breakdown, nibbles
