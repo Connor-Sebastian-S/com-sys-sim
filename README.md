@@ -15,6 +15,9 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
+## Try on fly.io
+Open this link to see the current version:
+https://computer-systems-sim.fly.dev/
 
 ## Project structure
 
