@@ -4,10 +4,8 @@ modules/bytecode.py
 modules/cache.py
 modules/cpu.py
 modules/dma.py
-modules/encoding.py
 modules/fde.py
 modules/interrupts.py
-modules/memory_types.py
 modules/memory.py
 modules/overview.py
 modules/simulator.py

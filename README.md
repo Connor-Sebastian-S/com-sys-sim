@@ -34,12 +34,17 @@ cpu_sim/
 
 ## Proposed architecture of the simulation engine
 
-- **Registers**: A, B, C, D (8-bit GP), PC, SP (16-bit), MAR, MDR, IR, CIR (internal), ALU_A/B/OUT
-- **Flags**: Zero, Carry, Negative, Overflow, Interrupt-enable
-- **Memory**: 256-byte flat address space with typed regions (ROM, Flash, Stack, Heap, Code, Data, I/O, DMA, Video)
-- **Cache**: 2-level (L1 + L2), 4-way set-associative, LRU eviction, hit/miss/eviction tracking
-- **Buses**: Address, Data, Control — full transaction log with state, address, data, control signals
-- **Interrupts**: NMI, IRQ0–IRQ3, Software, DMA_DONE — prioritised queue, IVT lookup, context save/restore
-- **DMA**: Source/destination/length programming, HOLD/HLDA handshake, scatter-gather, DMA_DONE IRQ
-- **Instruction set**: 19 instructions (LOAD, STORE, ADD, SUB, AND, OR, XOR, CMP, JMP, JZ, JNZ, PUSH, POP, CALL, RET, IN, OUT, NOP, HLT)
-- **Step log**: Every micro-operation logged with phase, cycle count, register snapshot, bus snapshot, memory writes, cache event, flags
+| Unit topic | Your app coverage |
+|CPU architecture (ALU, registers, control unit, fetch‑execute cycle) |	fde.py – detailed 5‑stage FDE + interactive animation |
+|Buses (address, data, control)	buses.py – bus transactions, width/bandwidth, arbitration
+|Memory hierarchy & types (SRAM, DRAM, ROM, EPROM, EEPROM, Flash, virtual) |	memory_types.py – hierarchy visual, deep‑dive cards, memory map |
+|Storage (HDD, SSD, NVMe, tape) | memory_types.py – hierarchy includes HDD/SSD/NVMe, speed comparison |
+|Number systems (binary, decimal, hex) & conversions | alu.py – universal converter, bit breakdown, nibbles
+Two’s complement, signed/unsigned |	alu.py – two’s complement explanation |
+|Arithmetic in non‑decimal (addition, subtraction) | alu.py – 8‑bit ripple‑carry adder, binary operations |
+|Logic operations (AND, OR, NOT, XOR) |	alu.py – ALU ops, truth tables, interactive gates |
+|ASCII / Unicode / string encoding | encoding.py – character inspector, UTF‑8/16, code points |
+|IEEE‑754 floating point | encoding.py – 32‑bit layout, 0.1+0.2 example |
+|Assembly / machine code / instruction set | assembly.py – full ISA, runnable examples, custom programs |
+|Interrupts & DMA | buses.py – INTA cycle, DMA HOLD/HLDA walkthrough |
+|Stack, heap, virtual memory | memory_types.py – virtual memory page fault, stack/heap mentioned (though not deeply) |

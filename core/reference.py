@@ -2,6 +2,8 @@
 Number system utilities: binary, hex, octal, ASCII, two's complement
 """
 from __future__ import annotations
+import struct, sys, ctypes, dis, io
+from typing import Any
 
 """Return zero-padded binary string."""
 def to_binary(n: int, bits: int = 8) -> str:
@@ -67,6 +69,31 @@ def ieee754_approx(n: float) -> dict:
         "mantissa":    mantissa,
         "binary":      format(bits, '032b'),
         "hex":         format(bits, '08X'),
+    }
+
+def int_to_bytes_repr(n: int) -> dict:
+    """Full breakdown of an integer."""
+    signed = ctypes.c_int32(n).value
+    unsigned = n & 0xFFFFFFFF
+    return {
+        "decimal_signed":   signed,
+        "decimal_unsigned": unsigned,
+        "hex":              f"0x{to_hex(unsigned, 8)}",
+        "binary":           to_binary(unsigned, 32),
+        "bytes_le":         list(struct.pack("<I", unsigned)),
+        "bytes_be":         list(struct.pack(">I", unsigned)),
+        "size_bytes":       4,
+    }
+
+def str_to_bytes_repr(s: str, encoding: str = "utf-8") -> dict:
+    raw = s.encode(encoding)
+    return {
+        "encoding":  encoding,
+        "bytes":     list(raw),
+        "hex":       raw.hex(" ").upper(),
+        "length_chars": len(s),
+        "length_bytes": len(raw),
+        "codepoints":  [ord(c) for c in s],
     }
 
 def alu_op(a: int, b: int, op: str) -> dict:

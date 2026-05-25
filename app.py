@@ -30,13 +30,15 @@ MODULES = [
     ("Home", "modules.home"),
 #    ("Live CPU Simulator", "modules.simulator"),
     ("ALU", "modules.alu"),                         # Numbers, ALU, logic gates, etc.
-#    ("Fetch-Decode-Execute", "modules.fde"),
-#    ("Memory & Storage Types", "modules.memory_types"),
+    ("Memory & Storage", "modules.memory_types"),
+    ("Encoding", "modules.encoding"),
+    ("Buses: Data, Address & Control", "modules.buses"),
+    ("Fetch-Decode-Execute", "modules.fde"),
 #    ("Cache Hierarchy", "modules.cache"),
 #    ("Stack & Heap", "modules.stack_heap"),
 #    ("Interrupts & I/O", "modules.interrupts"),
 #    ("Buses (Data/Address/Control)", "modules.buses"),
-    ("Assembly Walkthrough", "modules.assembly"),   # Assembly, opcodes, machine code
+    ("Assembly", "modules.assembly"),   # Assembly, opcodes, machine code
 #    ("Von Neumann vs Harvard", "modules.architecture"),
 #    ("DMA & Direct Access", "modules.dma"),
 
