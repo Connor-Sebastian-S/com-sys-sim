@@ -29,7 +29,8 @@ st.markdown("""
 MODULES = [
     ("Home",                       "modules.home"),
 #    ("Live CPU Simulator",       "modules.simulator"),
-    ("Number Systems",           "modules.numbers"),
+    ("ALU",           "modules.alu"),
+    
 #    ("Fetch-Decode-Execute",      "modules.fde"),
 #    ("Memory & Storage Types",   "modules.memory_types"),
 #    ("Cache Hierarchy",           "modules.cache"),
@@ -39,6 +40,7 @@ MODULES = [
 #    ("Assembly Walkthrough",     "modules.assembly"),
 #    ("Von Neumann vs Harvard",   "modules.architecture"),
 #    ("DMA & Direct Access",      "modules.dma"),
+
 ]
 
 MODULE_LABELS = [label for label, _ in MODULES]

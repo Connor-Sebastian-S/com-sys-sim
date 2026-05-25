@@ -69,6 +69,31 @@ def ieee754_approx(n: float) -> dict:
         "hex":         format(bits, '08X'),
     }
 
+def alu_op(a: int, b: int, op: str) -> dict:
+    ops = {
+        "ADD":  lambda x,y: x + y,
+        "SUB":  lambda x,y: x - y,
+        "MUL":  lambda x,y: x * y,
+        "AND":  lambda x,y: x & y,
+        "OR":   lambda x,y: x | y,
+        "XOR":  lambda x,y: x ^ y,
+        "SHL":  lambda x,y: x << (y % 32),
+        "SHR":  lambda x,y: x >> (y % 32),
+        "NOT":  lambda x,y: ~x & 0xFFFFFFFF,
+    }
+    result = ops[op](a, b) if op in ops else 0
+    result32 = result & 0xFFFFFFFF
+    return {
+        "op": op,
+        "a": a, "b": b,
+        "result": result,
+        "result32": result32,
+        "result_bin": to_binary(result32, 32),
+        "result_hex": f"0x{to_hex(result32, 8)}",
+        "zero_flag":  result32 == 0,
+        "negative_flag": bool(result32 >> 31),
+        "overflow":   result != result32,
+    }
 
 MEMORY_TYPE_INFO = {
     "SRAM": {
