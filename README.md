@@ -2,12 +2,6 @@
 
 An interactive app for learning computer architecture from the ground up, with a difficulty slider (Beginner → Advanced).
 
-## Modules
-
-| Module | Topics covered |
-|---|---|
-| Number Systems | Binary, hex, octal, ASCII, two's complement, IEEE-754, colour codes, quiz |
-
 ## Running locally
 
 ```bash
@@ -32,9 +26,10 @@ cpu_sim/
     ├── numbers.py          # Number systems
 ```
 
-## Proposed architecture of the simulation engine
+## Coverage
 
-| Unit topic | Your app coverage |
+| Unit topic | Coverage |
+|---|---|
 |CPU architecture (ALU, registers, control unit, fetch‑execute cycle) |	fde.py – detailed 5‑stage FDE + interactive animation |
 |Buses (address, data, control)	buses.py – bus transactions, width/bandwidth, arbitration
 |Memory hierarchy & types (SRAM, DRAM, ROM, EPROM, EEPROM, Flash, virtual) |	memory_types.py – hierarchy visual, deep‑dive cards, memory map |
