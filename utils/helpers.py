@@ -4,15 +4,15 @@ from typing import Any
 
 # ── binary / encoding helpers ────────────────────────────────────────────────
 
+"""Return zero-padded binary string."""
 def to_bin(n: int, bits: int = 8) -> str:
-    """Return zero-padded binary string."""
     return format(n & ((1 << bits) - 1), f"0{bits}b")
 
 def to_hex(n: int, nibbles: int = 2) -> str:
     return format(n & ((1 << nibbles * 4) - 1), f"0{nibbles}X")
 
+"""Full breakdown of an integer."""
 def int_to_bytes_repr(n: int) -> dict:
-    """Full breakdown of an integer."""
     signed = ctypes.c_int32(n).value
     unsigned = n & 0xFFFFFFFF
     return {
@@ -25,8 +25,8 @@ def int_to_bytes_repr(n: int) -> dict:
         "size_bytes":       4,
     }
 
+"""Decompose a float into IEEE-754 fields."""
 def float_to_ieee754(f: float) -> dict:
-    """Decompose a float into IEEE-754 fields."""
     bits = struct.unpack(">I", struct.pack(">f", f))[0]
     sign     = (bits >> 31) & 1
     exponent = (bits >> 23) & 0xFF
@@ -54,8 +54,8 @@ def str_to_bytes_repr(s: str, encoding: str = "utf-8") -> dict:
 
 # ── memory helpers ───────────────────────────────────────────────────────────
 
+"""Return CPython object address as hex."""
 def real_id(obj: Any) -> str:
-    """Return CPython object address as hex."""
     return f"0x{id(obj):016X}"
 
 def sizeof(obj: Any) -> int:
@@ -63,8 +63,8 @@ def sizeof(obj: Any) -> int:
 
 # ── disassembly helper ───────────────────────────────────────────────────────
 
+"""Compile source and return dis.dis() output."""
 def disassemble(source: str) -> str:
-    """Compile source and return dis.dis() output."""
     try:
         code = compile(source, "<input>", "exec")
         buf  = io.StringIO()
@@ -73,8 +73,8 @@ def disassemble(source: str) -> str:
     except SyntaxError as e:
         return f"SyntaxError: {e}"
 
+"""Return list of instruction dicts for table display."""
 def get_bytecode_instructions(source: str) -> list[dict]:
-    """Return list of instruction dicts for table display."""
     try:
         code = compile(source, "<input>", "exec")
         rows = []
@@ -136,8 +136,8 @@ STAGE_COLORS = {
     "WB":  "#68C46A",
 }
 
+"""Return a cycle-by-cycle pipeline table."""
 def simulate_pipeline(instructions: list[str]) -> list[dict]:
-    """Return a cycle-by-cycle pipeline table."""
     n = len(instructions)
     total_cycles = n + len(PIPELINE_STAGES) - 1
     table = []

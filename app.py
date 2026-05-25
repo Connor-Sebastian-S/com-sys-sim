@@ -1,6 +1,3 @@
-"""
-Computer System Fundamentals — Interactive Simulator
-"""
 import sys, os, importlib
 sys.path.insert(0, os.path.dirname(__file__))
 
@@ -8,7 +5,6 @@ import streamlit as st
 
 st.set_page_config(
     page_title="Computer System Fundamentals",
-    page_icon="🖥️",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -53,7 +49,7 @@ with st.sidebar:
     st.divider()
     selected = st.radio("Module", MODULE_LABELS, label_visibility="collapsed")
     st.divider()
-    st.markdown("**Difficulty**")
+    st.markdown("**Information Level**")
     level = st.select_slider("", ["Beginner", "Intermediate", "Advanced"],
                               value="Intermediate", label_visibility="collapsed")
     st.session_state["level"] = level
@@ -64,8 +60,6 @@ with st.sidebar:
     }
     st.info(lvl_info[level])
 
-# Use importlib so we always get a fresh call to render() for the selected module
-# even though Python caches the module object itself (that's fine — we just call render())
 module_path = MODULE_MAP.get(selected, "modules.simulator")
 page = importlib.import_module(module_path)
 page.render()

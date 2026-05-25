@@ -3,9 +3,8 @@ Number system utilities: binary, hex, octal, ASCII, two's complement
 """
 from __future__ import annotations
 
-
+"""Return zero-padded binary string."""
 def to_binary(n: int, bits: int = 8) -> str:
-    """Return zero-padded binary string."""
     if n < 0:
         n = n & ((1 << bits) - 1)
     return format(n & ((1 << bits) - 1), f'0{bits}b')
@@ -18,9 +17,8 @@ def to_hex(n: int, digits: int = 2) -> str:
 def to_octal(n: int) -> str:
     return format(n & 0xFF, '03o')
 
-
+"""Interpret n as signed two's complement."""
 def twos_complement(n: int, bits: int = 8) -> int:
-    """Interpret n as signed two's complement."""
     if n >= (1 << (bits - 1)):
         return n - (1 << bits)
     return n
@@ -31,8 +29,8 @@ def signed_str(n: int, bits: int = 8) -> str:
     return f"{s:+d}"
 
 
+"""Group binary string for readability: '10110011' → '1011 0011'"""
 def bit_groups(binary: str, group: int = 4) -> str:
-    """Group binary string for readability: '10110011' → '1011 0011'"""
     return ' '.join(binary[i:i+group] for i in range(0, len(binary), group))
 
 
@@ -50,14 +48,12 @@ def nibble_high(n: int) -> int:
 def nibble_low(n: int) -> int:
     return n & 0x0F
 
-
+"""BCD: tens digit, units digit."""
 def bcd_encode(n: int) -> tuple[int, int]:
-    """BCD: tens digit, units digit."""
     return (n // 10) & 0xF, n % 10
 
-
+"""Very rough IEEE-754 single-precision breakdown."""
 def ieee754_approx(n: float) -> dict:
-    """Very rough IEEE-754 single-precision breakdown (educational)."""
     import struct
     packed = struct.pack('>f', n)
     bits = int.from_bytes(packed, 'big')
