@@ -4,7 +4,7 @@ modules/cpu.py
 modules/simulator.py
 modules/buses.py
 modules/cache.py
-/modules/dma.py
+modules/dma.py
 modules/fde.py
 modules/interrupts.py
 modules/memory_types.py
