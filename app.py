@@ -28,16 +28,17 @@ st.markdown("""
 
 MODULES = [
     ("Home", "modules.home"),
+    #("Basics", "modules.basics"),
     #("CPU Simulator", "modules.simulator"),
     ("ALU", "modules.alu"),                             # Numbers, ALU, logic gates, etc.
-    ("Memory & Storage", "modules.memory_types"),       # Details on memory types
-    ("DMA - Direct Memory Access", "modules.dma"),
+    #("Memory & Storage", "modules.memory_types"),       # Details on memory types
+    #("DMA - Direct Memory Access", "modules.dma"),
     ("Encoding", "modules.encoding"),                   # How data is encoded   
-    ("Buses: Data, Address & Control", "modules.buses"),# Buses, and how they work
-    ("Fetch-Decode-Execute", "modules.fde"),
-    ("Cache Hierarchy", "modules.cache"),
-    ("Stack & Heap", "modules.stack_heap"),
-    ("Interrupts & I/O", "modules.interrupts"),
+    #("Buses: Data, Address & Control", "modules.buses"),# Buses, and how they work
+    #("Fetch-Decode-Execute", "modules.fde"),
+    #("Cache Hierarchy", "modules.cache"),
+    #("Stack & Heap", "modules.stack_heap"),
+    #("Interrupts & I/O", "modules.interrupts"),
     ("Assembly", "modules.assembly"),   # Assembly, opcodes, machine code
 ]
 

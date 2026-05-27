@@ -2,7 +2,14 @@ modules/architecture.py
 modules/bytecode.py
 modules/cpu.py
 modules/simulator.py
-core/cpu.py
+modules/buses.py
+modules/cache.py
+/modules/dma.py
+modules/fde.py
+modules/interrupts.py
+modules/memory_types.py
+modules/stack_heap.py
+core/cpu.py.py
 
 fly.toml
 .git/
