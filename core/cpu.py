@@ -63,7 +63,7 @@ class MemoryRegion:
     cells: list[MemoryCell] = field(default_factory=list)
 
     def __post_init__(self):
-        # Automatically populate the region with MemoryCell objects upon initialization
+        # Automatically populate the region with MemoryCell objects upon initialisation
         self.cells = [
             MemoryCell(self.start + i, 0, writable=self.writable, mem_type=self.mem_type)
             for i in range(self.size)
@@ -159,7 +159,7 @@ class Cache:
     def __init__(self, name: str, latency_cycles: int):
         self.name = name
         self.latency = latency_cycles
-        # Initialize a 2D list simulating cache sets and ways
+        # Initialise a 2D list simulating cache sets and ways
         self.lines: list[list[CacheLine]] = [
             [CacheLine() for _ in range(self.WAYS)] for _ in range(self.SETS)
         ]
@@ -378,7 +378,7 @@ class CPU:
     def __init__(self):
         self.registers   = Registers()
         self.memory      = MemoryMap()
-        # Initialize L1 and L2 caches with realistic relative latencies
+        # Initialise L1 and L2 caches with realistic relative latencies
         self.l1_cache    = Cache("L1 SRAM", latency_cycles=1)
         self.l2_cache    = Cache("L2 SRAM", latency_cycles=4)
         self.cycle       = 0
@@ -530,11 +530,14 @@ class CPU:
         self.step_log.append(SimStep(
             phase="execute", cycle=self.cycle,
             description=f"PUSH 0x{val:02X} → [SP=0x{self.registers.SP:02X}]",
-            detail=f"Stack pointer decrements. Value 0x{val:02X} written to 0x{self.registers.SP:02X}.",
+            detail=f"Address bus: 0x{self.registers.SP:02X}. Data bus: 0x{val:02X}. WR asserted. "
+                   f"Value 0x{val:02X} written to stack address 0x{self.registers.SP:02X}. "
+                   f"Each PUSH is one full memory write cycle.",
             reg_snapshot=self.registers.as_dict(),
             mem_changed=[(self.registers.SP, val & 0xFF)],
         ))
         self.registers.SP = (self.registers.SP - 1) & 0xFF
+        self._tick(1)  # memory write takes 1 clock cycle
 
     """Pops an 8-bit value from the stack, incrementing the stack pointer."""
     def _pop(self) -> int:
@@ -543,9 +546,12 @@ class CPU:
         self.step_log.append(SimStep(
             phase="execute", cycle=self.cycle,
             description=f"POP [SP=0x{self.registers.SP:02X}] → 0x{val:02X}",
-            detail=f"Stack pointer increments. Value 0x{val:02X} read from 0x{self.registers.SP:02X}.",
+            detail=f"Address bus: 0x{self.registers.SP:02X}. RD asserted. "
+                   f"Value 0x{val:02X} read from stack address 0x{self.registers.SP:02X}. "
+                   f"Each POP is one full memory read cycle.",
             reg_snapshot=self.registers.as_dict(),
         ))
+        self._tick(1)  # memory read takes 1 clock cycle
         return val
 
     # ── Interrupt handling ─────────────────────────────────────────────────
@@ -586,16 +592,25 @@ class CPU:
                         f"{evt.itype.value} acknowledged")
         self._step("interrupt",
                    f"Interrupt: {evt.itype.value}",
-                   f"CPU acknowledges {evt.description}. Pushing PC=0x{self.registers.PC:04X} to stack. "
-                   f"Loading vector 0x{evt.vector:02X} from IVT. Jumping to handler.",
+                   f"CPU acknowledges {evt.description}. "
+                   f"INTA (Interrupt Acknowledge) asserted. Interrupts masked. "
+                   f"PC=0x{self.registers.PC:04X} will be saved to the stack.",
                    bus=bus)
+        self._tick(1)  # INTA cycle completes before stack saves begin
                    
         # Push current Program Counter to stack so we can return later
         self._push(self.registers.PC & 0xFF)
         self._push((self.registers.PC >> 8) & 0xFF)
-        
+
         self.registers.FLAGS.interrupt = False # Mask further interrupts
-        
+
+        # Log the IVT lookup at the current cycle before the stall begins
+        self._step("interrupt",
+                   f"IVT lookup — reading handler address from 0x{evt.vector:02X}",
+                   f"PC saved. CPU now reads the 16-bit handler address from the "
+                   f"Interrupt Vector Table at 0x{evt.vector:02X}–0x{evt.vector+1:02X}. "
+                   f"This ROM access incurs a 6-cycle latency.")
+
         # IVT stores 16-bit handler addresses as little-endian pairs
         lo = self.memory.read(evt.vector)
         hi = self.memory.read(evt.vector + 1)
@@ -603,9 +618,8 @@ class CPU:
         self._tick_stall(
             6, "interrupt", "interrupt vector fetch and context setup",
             detail=(
-                f"CPU fetches the handler address from the Interrupt Vector Table at "
-                f"0x{evt.vector:02X}. The IVT entry is read, PC is loaded with the handler "
-                f"address, and the interrupt flag is cleared to prevent nested interrupts. "
+                f"CPU stalls while reading the IVT entry at 0x{evt.vector:02X} and loading "
+                f"the handler PC. Interrupt flag cleared to prevent nested interrupts. "
                 f"This overhead is why minimising interrupt latency matters in real-time systems."
             )
         )
@@ -677,19 +691,27 @@ class CPU:
     def _fetch_operand(self) -> int:
         r = self.registers
         r.MAR = r.PC
+        bus_addr = self._bus(BusState.READ, r.MAR, 0, "RD",
+                             f"Fetch operand at 0x{r.MAR:04X}")
+        self._step("fetch",
+                   f"FETCH operand — address bus: 0x{r.MAR:04X}",
+                   f"MAR ← PC (0x{r.MAR:04X}). Address placed on address bus. "
+                   f"Control bus asserts RD. Waiting for memory response…",
+                   bus=bus_addr)
         val, cache_event = self._cache_read(r.MAR, phase="fetch")
         r.MDR = val
         r.PC  = (r.PC + 1) & 0xFFFF
-        bus = self._bus(BusState.READ, r.MAR, r.MDR, "RD", "Fetch operand")
+        bus = self._bus(BusState.READ, r.MAR, r.MDR, "RD", "Operand on data bus")
         self._step("fetch",
-                   f"FETCH operand — 0x{r.MDR:02X} from 0x{r.MAR:04X}",
-                   f"Second memory cycle: operand 0x{val:02X} fetched ({cache_event}). PC → 0x{r.PC:04X}.",
+                   f"FETCH operand complete — 0x{r.MDR:02X} received",
+                   f"MDR ← 0x{r.MDR:02X} ({cache_event}). PC advances to 0x{r.PC:04X}.",
                    bus=bus, cache_event=cache_event)
         self.cycle += 1
         self._step("fetch",
                    f"Operand latched — ready for execute unit",
                    f"Operand 0x{r.MDR:02X} is now in MDR and will be forwarded to the "
                    f"ALU or address unit. The fetch phase is complete.")
+        self._tick(1)  # advance past latch before execute begins
         return r.MDR
 
     """Maps an opcode byte back to its mnemonic and parameter needs."""
@@ -708,6 +730,7 @@ class CPU:
                    f"The control unit has finished decoding '{mnemonic}' and is now asserting "
                    f"the microoperation signals to the appropriate functional units. "
                    f"{'Operand fetch will follow.' if operands else 'No operand needed — proceeding straight to execute.'}")
+        self._tick(1)  # advance past decode before next phase begins
         return mnemonic, desc, operands
 
     """Execute one full fetch-decode-execute-writeback cycle."""
@@ -751,7 +774,6 @@ class CPU:
                        f"ALU performs {mnemonic}. Inputs: A=0x{old_a:02X}, operand=0x{operand:02X}. "
                        f"Result: 0x{r.A:02X}. Flags updated: Z={r.FLAGS.zero} C={r.FLAGS.carry} N={r.FLAGS.negative}.",
                        flags=True)
-            self._tick(1)  # 1 cycle for ALU computation
 
         elif mnemonic == "CMP":
             # Compare doesn't store the result, it only updates flags
@@ -761,7 +783,6 @@ class CPU:
                        f"ALU subtracts without storing result. Only flags updated: "
                        f"Z={r.FLAGS.zero} C={r.FLAGS.carry} N={r.FLAGS.negative}.",
                        flags=True)
-            self._tick(1)  # 1 cycle for ALU computation
 
         elif mnemonic == "JMP":
             old_pc = r.PC
@@ -837,7 +858,6 @@ class CPU:
 
         elif mnemonic == "NOP":
             self._step("execute", "EXECUTE NOP", "No operation performed. PC already advanced.")
-            self._tick(1)
 
         elif mnemonic == "HLT":
             self.halted = True
@@ -846,7 +866,8 @@ class CPU:
                        "Only an NMI or RESET can resume execution.")
             return
 
-        # Writeback phase
+        # Writeback phase — always on a distinct cycle from execute
+        self._tick(1)
         self._step("writeback",
                    f"WRITEBACK — {mnemonic} complete",
                    f"Results committed. Any pending register writes finalised. "
